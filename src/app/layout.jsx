@@ -1,4 +1,5 @@
-import Link from "next/link";
+import Footer from "./components/Footer";
+import Navigation from "./components/Navigation";
 import "./globals.css";
 import { Poppins } from "next/font/google";
 
@@ -14,22 +15,10 @@ export default function RootLayout({ children }) {
         {" "}
         {/*sınıf adı değişken olucak $ ile.yedek fontları font-sans içerecek*/}
         <header>
-          <nav>
-            <Link className="nav-link" href="/">
-              Home
-            </Link>
-            <div>
-              <Link className="nav-link" href="/dashboard">
-                Dashboard
-              </Link>
-              <Link className="nav-link" href="/register">
-                Register
-              </Link>
-            </div>
-          </nav>
+          <Navigation />
         </header>
         <main>{children}</main>
-        <footer>footer</footer>
+        <Footer />
       </body>
     </html>
   );
