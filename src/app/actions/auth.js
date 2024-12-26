@@ -5,6 +5,7 @@ import bcrypt from "bcrypt"; //Şifrelerin güvenli bir şekilde hashlenmesi iç
 import { redirect } from "next/navigation";
 import { getCollection } from "../lib/db";
 import { RegisterFormSchema } from "../lib/rules";
+import { createSession } from "../lib/session";
 
 //Kayıt Fonksiyonu Tanımlanması
 export async function register(state, formData) {
@@ -51,6 +52,8 @@ export async function register(state, formData) {
     password: hashedPassword,
   }); //hashedpass kullanmamızın sebebi düz metin password kullanmak istemiyorzu bu yüzden
 
+  //session oluşturma
+  await createSession(results.insertedId.toString()) //result  acknowledged yani onaylanmış ve isertedid yani eklenmiş bir id veriyor eklenen kimliği istiyoruz
 
   redirect("/dashboard");
 }
