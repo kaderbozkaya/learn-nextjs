@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { getCollection } from "../lib/db";
 import { LoginFormSchema, RegisterFormSchema } from "../lib/rules";
 import { createSession } from "../lib/session";
+import { cookies } from "next/headers";
 
 //Kayıt Fonksiyonu Tanımlanması
 export async function register(state, formData) {
@@ -94,4 +95,11 @@ export async function login(state,formData) {
 
   redirect("/dashboard")
 
+}
+
+export async function logout() {
+  const cookieStore=await cookies() //çerez depomuzu oluşturuyoruz
+  cookieStore.delete('session') //silmek istediğimiz öğe sessiondır
+  redirect("/")
+  
 }

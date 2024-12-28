@@ -1,6 +1,7 @@
 import React from "react";
 import NavLink from "./NavLink";
 import getAuthUser from "@/lib/getAuthUser";
+import { logout } from "@/actions/auth";
 
 export default async function Navigation() {
   const authUser = await getAuthUser();
@@ -11,6 +12,10 @@ export default async function Navigation() {
       {authUser ? (
         <div className="flex items-center">
           <NavLink label="Dashboard" href="/dashboard" />
+          {/*oturumu silerek çıkış yapıyoruz. bu da kullanıcının oturumu kapattığı anlamına gelir.*/}
+          <form action={logout}>
+            <button className=",nav-link">Logout</button>
+          </form>
         </div>
       ) : (
         <div>
