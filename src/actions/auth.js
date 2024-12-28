@@ -4,7 +4,7 @@ import bcrypt from "bcrypt"; //Şifrelerin güvenli bir şekilde hashlenmesi iç
 
 import { redirect } from "next/navigation";
 import { getCollection } from "../lib/db";
-import { RegisterFormSchema } from "../lib/rules";
+import { LoginFormSchema, RegisterFormSchema } from "../lib/rules";
 import { createSession } from "../lib/session";
 
 //Kayıt Fonksiyonu Tanımlanması
@@ -56,4 +56,42 @@ export async function register(state, formData) {
   await createSession(results.insertedId.toString()) //result  acknowledged yani onaylanmış ve isertedid yani eklenmiş bir id veriyor eklenen kimliği istiyoruz
 
   redirect("/dashboard");
+}
+
+
+export async function login(state,formData) {
+  //form verilerinin doğrulanması
+  const validatedFields=LoginFormSchema.safeParse({
+    email:formData.get("email"),
+    password:formData.get("password")//loginformschema kullanıcıdan gelen verileri doğrulamak için kullanılan bir doğrulama şemasıdır
+
+  })
+  
+  //eğer doğrulama başarısız olursa
+  if(!validatedFields.success){
+    return {
+      errors:validatedFields.error.flatten().fieldErrors,
+      email:formData.get("email")
+
+    }
+  }
+
+  const { email, password } = validatedFields.data; //tekrar eğer doğrulamalar geçerse bu doğrulanmış alanlarda bir veri özelliğimiz olacak 
+
+  //veritabanı kullanıcı kontrolü
+  const userCollection=await getCollection("users") //getcollection bir veritabanı koleksiyonu alır.burada users koleksiyonunu kullandı
+  if(!userCollection) return {errors:{email:"Server error!"}} //koleksiyon alınmazsa hata dönüyor
+
+  const existingUser=await userCollection.findOne({email}) //mevcut emaili arar
+  if(!existingUser) return {errors:{email:"Invalid credentials."}} //yoksa hata verir
+
+  //şifre kontrolü
+  const matchedPassword=await bcrypt.compare(password,existingUser.password) //kullanıcının girdiği şifre veritabanındaki hashlenmis şifre ile karşılaştırılır.bcrypt bir parolayı hashlenmiş yapmak ve bu parolayı almak veya şifresini çözmek için compare(karşılaştırma) işlevini kullanırız
+  if(!matchedPassword) return {errors:{email:"Invalid credentials"}}
+
+  //oturum oluşturma
+  await createSession(existingUser._id.toString()) //kullanıcı giriş yaptıktan sonra oturum başlatılır.mongodbde id bir alt çizgiyle başlar
+
+  redirect("/dashboard")
+
 }

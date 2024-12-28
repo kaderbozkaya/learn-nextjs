@@ -1,5 +1,5 @@
 "use client"; //bir istemci(client) bileşeninde çalışan bir tepki hooku kullanmaya çallışıyoruz ancak bir sunucu bileşenindeyiz bu yüzden bunu ekliyoruz
-import { register } from "@/app/actions/auth";
+import { register } from "@/actions/auth";
 import Link from "next/link";
 import React, { useActionState } from "react";
 
@@ -44,7 +44,7 @@ export default function Register() {
           <button disabled={isPending} className="btn-primary">
             {isPending ? "loading..." : "Register"}
           </button>
-          <Link href="" className="text-link">
+          <Link href="/login" className="text-link">
             or login here
           </Link>
         </div>
