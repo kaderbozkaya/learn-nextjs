@@ -11,10 +11,11 @@ export default async function Navigation() {
 
       {authUser ? (
         <div className="flex items-center">
+          <NavLink label="New Post+" href="/posts/create" />
           <NavLink label="Dashboard" href="/dashboard" />
           {/*oturumu silerek çıkış yapıyoruz. bu da kullanıcının oturumu kapattığı anlamına gelir.*/}
           <form action={logout}>
-            <button className=",nav-link">Logout</button>
+            <button className="nav-link">Logout</button>
           </form>
         </div>
       ) : (

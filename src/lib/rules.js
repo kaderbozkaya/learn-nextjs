@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { string, z } from "zod";
 
 export const LoginFormSchema=z.object({
   email:z.string().email({message:"Please enter a valid email"}).trim(),
@@ -28,3 +28,8 @@ export const RegisterFormSchema = z
       });
     }
   });
+
+  export const BlogPostSchema=z.object({
+    title:string().min(1,{message:"Title field is required."}).max(100,{message:"Ttile can't be more 100 characters"}).trim(),
+    content:string().min(1,{message:"Content field is required."}).trim()
+  })
