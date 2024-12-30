@@ -52,3 +52,44 @@ redirect("/dashboard")
 
     
 }
+
+//for update post
+export async function updatePost(state,formData) {
+    //kullanıcı giriş yaptı mı
+const user=await getAuthUser()
+if(!user) return redirect("/")
+const title=formData.get("title")
+const content=formData.get("content")
+const postId=formData.get("postId") //düzenlemeye çalıştığımız gönderinin kimliğini almak için bir değişkene kaydediyoruz
+const validatedFields=BlogPostSchema.safeParse({
+            title,
+            content
+        })
+        if(!validatedFields.success) {
+            return {
+                errors:validatedFields.error.flatten().fieldErrors,
+                title,
+                content
+            }
+        }
+         
+        //postu bulmak için
+        const postsCollection=await getCollection("posts")
+        const post=await postsCollection.findOne({
+            _id:ObjectId.createFromHexString(postId)
+        }) //güncellemeye çalışan kullanıcı için öncelikle findone metodu kullanılıyor idye göre arannıyor bu id formdan aldığımız bir stringdir bu yüzden bunu bir objeye geri döndürmek istiyoruz
+
+        //kullanıcının bu posta sahip olup olmadığını kontrol etmek için. datadan gelen veri string olmadığı için ve eşitlemeye çalıştığımız şey string olduğu için data verisini stringe çeviriyoruz
+if(user.userId !==post.userId.toString()) return redirect("/")
+//datada veriyi güncellemek için
+postsCollection.findOneAndUpdate({
+    _id:post._id},
+    {
+        $set: {
+            title:validatedFields.data.title,
+            content:validatedFields.data.content
+        },
+    })//iki argüman alıyor ilki filtreler veya kriterler.hangi postu güncellemek istiyoruz ve kriterimiz ne. ikinci argüman güncellenen belge ve alanlar. özel mongodb değişkenlerinden olan $seti kullanıyoruz.
+    redirect("/dashboard")
+
+}
