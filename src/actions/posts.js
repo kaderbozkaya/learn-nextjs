@@ -4,6 +4,7 @@ import { getCollection } from "@/lib/db"
 import getAuthUser from "@/lib/getAuthUser"
 import { BlogPostSchema } from "@/lib/rules"
 import { ObjectId } from "mongodb"
+import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
 
@@ -91,5 +92,24 @@ postsCollection.findOneAndUpdate({
         },
     })//iki argüman alıyor ilki filtreler veya kriterler.hangi postu güncellemek istiyoruz ve kriterimiz ne. ikinci argüman güncellenen belge ve alanlar. özel mongodb değişkenlerinden olan $seti kullanıyoruz.
     redirect("/dashboard")
+
+}
+
+export async function deletePost(formData) {
+    //kullanıcının oturum açıp açmadığını kontrol etme
+    const user=await getAuthUser()
+    if(!user) return redirect("/")
+    //postu veri tabanında arama
+const postsCollection=await getCollection("posts")
+const post=await postsCollection.findOne({
+    _id:ObjectId.createFromHexString(formData.get("postId"))
+}) 
+//kullanıcının postun sahibi olup olmadığını kontrol etme.birinci userId cookiesten gelen ikincisi veri tabanından
+if(user.userId !==post.userId.toString()) return redirect("/")
+
+//postu silme
+postsCollection.findOneAndDelete({_id:post._id})
+revalidatePath("/dashboard") //dashboard sayfasını yeniden doğruluyor.yani silme işlem tamamlandıktan sonra dashboard sayfasındaki gönderiler yeniden yğkleniyor ve en güncel haliyle görüntüleniyor.bu yöntem başka bir sayfaya yönlendirmek terine aynı sayfa üzerindeki veriyi günceller.spa mimarilerinde önemlidir çğnkğ kullanıcıyı yönlendirmeden mevcut sayfa içeriğini güncel tutar 
+
 
 }
